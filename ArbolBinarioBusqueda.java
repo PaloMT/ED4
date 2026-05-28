@@ -41,7 +41,17 @@ public class ArbolBinarioBusqueda {
     // =========================================================
     private NodoABB insertarRec(NodoABB nodo, Paciente p) {
         /// === INICIO CODIGO ALUMNO === ///
-        return null; // TODO: Borrar este valor por defecto. Es solo para que el proyecto compile.
+
+        if (nodo == null) {
+            return new NodoABB(p);
+        }
+        if (p.getId() < nodo.paciente.getId()) {
+            nodo.izq = insertarRec(nodo.izq, p);
+        } else if (p.getId() > nodo.paciente.getId()) {
+            nodo.der = insertarRec(nodo.der, p);
+        }
+        return nodo;
+        // TODO: Borrar este valor por defecto. Es solo para que el proyecto compile.
         /// === FIN CODIGO ALUMNO === ///
     }
 
@@ -62,7 +72,19 @@ public class ArbolBinarioBusqueda {
     // =========================================================
     private NodoABB buscarRec(NodoABB nodo, int id) {
         /// === INICIO CODIGO ALUMNO === ///
-        return null; // TODO: Borrar este valor por defecto. Es solo para que el proyecto compile.
+
+        NodoABB resultado;
+        if (nodo == null) {
+            resultado = null;
+        } else if (id == nodo.paciente.getId()) {
+            resultado = nodo;
+        } else if (id < nodo.paciente.getId()) {
+            resultado = buscarRec(nodo.izq, id);
+        } else {
+            resultado = buscarRec(nodo.der, id);
+        }
+        return resultado;
+        // TODO: Borrar este valor por defecto. Es solo para que el proyecto compile.
         /// === FIN CODIGO ALUMNO === ///
     }
 

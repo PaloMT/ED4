@@ -37,15 +37,36 @@ public class Ges {
 
     public double analizarGravedad(String nombreNodo) {
         /// === INICIO CODIGO ALUMNO === ///
-        double media = 0.0, suma = 0.0;
-        int personas = 0;
-        
-        return 0.0; // TODO: Borrar este valor por defecto. Es solo para que el proyecto compile.
+        double resultado= 0.0;
+        NodoArbol nodo = redSanitaria.buscar(nombreNodo);
+        if (nodo != null) {
+            Estadisticas stats = new Estadisticas();
+            analizarGravedadRec(nodo, stats);
+            if (stats.n_pacientes != 0){
+                resultado = stats.s_gravedad / stats.n_pacientes;
+            }
+        }
+
+        return resultado;
+        // TODO: Borrar este valor por defecto. Es solo para que el proyecto compile.
         /// === FIN CODIGO ALUMNO === ///
     }
 
     /// === INICIO CODIGO ALUMNO (Metodo Auxiliar E1) === ///
 
+    private void analizarGravedadRec(NodoArbol nodo, Estadisticas stats) {
+        if (nodo != null) {
+            if (nodo.getTipo().equals("PACIENTE")) {
+                stats.n_pacientes++;
+                stats.s_gravedad += nodo.getPaciente().getGravedad();
+            } else {
+                Iterator<NodoArbol> it = nodo.getHijos().iterator();
+                while (it.hasNext()) {
+                    analizarGravedadRec(it.next(), stats);
+                }
+            }
+        }
+    }
     /// === FIN CODIGO ALUMNO === ///
 
 
@@ -54,12 +75,39 @@ public class Ges {
     // =====================================================================
     public String buscarCama(String especialidad) {
         /// === INICIO CODIGO ALUMNO === ///
-        return ""; // TODO: Borrar este valor por defecto. Es solo para que el proyecto compile.
+        return buscarCamaRec(redSanitaria.getRaiz(), especialidad, "");
+        // TODO: Borrar este valor por defecto. Es solo para que el proyecto compile.
         /// === FIN CODIGO ALUMNO === ///
     }
 
     /// === INICIO CODIGO ALUMNO (Metodo Auxiliar E2) === ///
+    private String buscarCamaRec(NodoArbol nodo, String especialidad, String rutaActual) {
+        String resultado = null;
 
+        if (nodo != null) {
+            String nuevaRuta = "";
+            if (rutaActual.isEmpty()) {
+                nuevaRuta = nodo.getNombre();
+            } else {
+                nuevaRuta = rutaActual + " -> " + nodo.getNombre();
+            }
+
+            if (nodo.getTipo().equals("UNIDAD") && nodo.getNombre().equalsIgnoreCase(especialidad)) {
+                if (nodo.getHijos().size() < nodo.getCapacidadMaxima()) {
+                    resultado = nuevaRuta;
+                }
+            }
+
+            if (resultado == null) {
+                Iterator<NodoArbol> it = nodo.getHijos().iterator();
+                while (it.hasNext() && resultado == null) {
+                    resultado = buscarCamaRec(it.next(), especialidad, nuevaRuta);
+                }
+            }
+        }
+
+        return resultado;
+    }
     /// === FIN CODIGO ALUMNO === ///
 
 
@@ -69,12 +117,28 @@ public class Ges {
     // =====================================================================
     public boolean darAltaPaciente(int idPaciente) {
         /// === INICIO CODIGO ALUMNO === ///
-        return false; // TODO: Borrar este valor por defecto. Es solo para que el proyecto compile.
+        return darAltaPacienteRec(redSanitaria.getRaiz(), idPaciente);
+        // TODO: Borrar este valor por defecto. Es solo para que el proyecto compile.
         /// === FIN CODIGO ALUMNO === ///
     }
 
     /// === INICIO CODIGO ALUMNO (Metodo Auxiliar E3) === ///
-
+    private boolean darAltaPacienteRec(NodoArbol nodo, int idPaciente) {
+        boolean resultado = false;
+        if (nodo != null && nodo.getHijos() != null) {
+            Iterator<NodoArbol> it = nodo.getHijos().iterator();
+            while (it.hasNext() && !resultado) {
+                NodoArbol hijo = it.next();
+                if (hijo.getTipo().equals("PACIENTE") && hijo.getPaciente().getId() == idPaciente) {
+                    it.remove();
+                    resultado = true;
+                } else {
+                    resultado = darAltaPacienteRec(hijo, idPaciente);
+                }
+            }
+        }
+        return resultado;
+    }
     /// === FIN CODIGO ALUMNO === ///
 
 
@@ -84,12 +148,24 @@ public class Ges {
     // =====================================================================
     public void generarIndice() {
         /// === INICIO CODIGO ALUMNO === ///
-
+        indicePacientes = new ArbolBinarioBusqueda();
+        generarIndiceRec(redSanitaria.getRaiz());
         /// === FIN CODIGO ALUMNO === ///
     }
 
     /// === INICIO CODIGO ALUMNO (Metodo Auxiliar E5) === ///
-
+    private void generarIndiceRec(NodoArbol nodo) {
+        if (nodo != null) {
+            if (nodo.getTipo().equals("PACIENTE")) {
+                indicePacientes.insertar(nodo.getPaciente());
+            } else {
+                Iterator<NodoArbol> it = nodo.getHijos().iterator();
+                while (it.hasNext()) {
+                    generarIndiceRec(it.next());
+                }
+            }
+        }
+    }
     /// === FIN CODIGO ALUMNO === ///
 
     // =====================================================================
@@ -97,7 +173,12 @@ public class Ges {
     // =====================================================================
     public Paciente buscarFamiliar(int idPaciente) {
         /// === INICIO CODIGO ALUMNO === ///
-        return null; // TODO: Borrar este valor por defecto. Es solo para que el proyecto compile.
+        Paciente resultado = null;
+        if (indicePacientes != null) {
+            resultado = indicePacientes.buscar(idPaciente);
+        }
+        return resultado;
+        // TODO: Borrar este valor por defecto. Es solo para que el proyecto compile.
         /// === FIN CODIGO ALUMNO === ///
     }
 }
